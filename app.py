@@ -13,10 +13,10 @@ from sklearn.metrics import accuracy_score, classification_report
 st.title("Customer Travel Logistic Regression Classifier")
 
 # Upload CSV file
-uploaded_file = st.file_uploader("Customertravel.csv", type=["csv"])
+data_url = "https://raw.githubusercontent.com/VijayYtc-B14/LogisticRegression/refs/heads/main/Customertravel.csv"
 
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+if data_url is not None:
+    df = pd.read_csv(data_url)
 
     st.subheader("Raw Data")
     st.write(df.head())
