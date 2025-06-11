@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -12,36 +11,47 @@ from sklearn.metrics import accuracy_score, classification_report
 # Set up the Streamlit app
 st.title("Customer Travel Logistic Regression Classifier")
 
-# Upload CSV file
+# Navigation Bar Below Title
+menu = st.radio("Go to", ["Raw Data", "Data Exploration", "Model Training & Results"])
+
+# Load dataset
 data_url = "https://raw.githubusercontent.com/VijayYtc-B14/LogisticRegression/refs/heads/main/Customertravel.csv"
 
-if data_url is not None:
-    df = pd.read_csv(data_url)
+@st.cache_data
+def load_data(url):
+    df = pd.read_csv(url)
+    df = df.dropna()
+    return df
 
+df = load_data(data_url)
+
+if menu == "Raw Data":
     st.subheader("Raw Data")
     st.write(df.head())
 
     st.subheader("Data Info")
-    st.write(df.info())
+    buffer = []
+    df.info(buf=buffer)
+    s = '\n'.join(map(str, buffer))
+    st.text(s)
 
     st.subheader("Statistical Summary")
     st.write(df.describe(include='all'))
 
-    df = df.dropna()
-
-    # Plot Target Distribution
+elif menu == "Data Exploration":
     st.subheader("Target Class Distribution")
     fig1, ax1 = plt.subplots()
     sns.countplot(x="Target", data=df, ax=ax1)
     st.pyplot(fig1)
 
-    # Correlation Heatmap
     st.subheader("Correlation Heatmap")
     fig2, ax2 = plt.subplots(figsize=(10, 6))
     sns.heatmap(df.corr(numeric_only=True), annot=True, fmt='.2f', ax=ax2)
     st.pyplot(fig2)
 
-    # Preprocessing
+elif menu == "Model Training & Results":
+    st.subheader("Training Logistic Regression Model")
+
     df_encoded = pd.get_dummies(df, drop_first=True)
     X = df_encoded.drop("Target", axis=1)
     y = df_encoded["Target"]
@@ -51,13 +61,10 @@ if data_url is not None:
 
     X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.25, random_state=42)
 
-    # Train model
     model = LogisticRegression()
     model.fit(X_train, y_train)
-
     y_pred = model.predict(X_test)
 
-    # Show Results
     st.subheader("Model Accuracy")
     st.write(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
 
